@@ -8,7 +8,7 @@ from .models import User, Post
 
 
 def index(request):
-    posts = Post.objects.all()
+    posts = Post.objects.all().order_by("-timestamp").values()
     return render(request, "network/index.html", {
         "posts": posts
     })
@@ -74,4 +74,29 @@ def new_post(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/new_post.html")
+    
+def profile(request, username):
+    user = User.objects.get(username=username)
+    posts = user.posts.all().order_by("-timestamp").values()
+    return render(request, "network/profile.html", {
+        "posts": posts,
+        "user": user
+    })
+
+def following(request):
+    user = request.user
+    posts = []
+    for post in Post.objects.all().order_by("-timestamp").values():
+        if post["user_id"] in user.following.all().values_list("id", flat=True):
+            posts.append(post)
+    return render(request, "network/following.html", {
+        "posts": posts
+    })
+
+def followers(request, username):
+    user = User.objects.get(username=username)
+    followers = user.followers.all()
+    return render(request, "network/followers.html", {
+        "followers": followers
+    })
 
