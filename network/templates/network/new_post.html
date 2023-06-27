@@ -1,0 +1,12 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<div align="center">
+    <h2>New Post</h2>
+    <form action="{% url 'new_post' %}" method="POST">
+        {% csrf_token %}
+        <textarea name="post" cols="100" rows="10"></textarea>
+        <input type="submit" value="Post" class="button">
+    </form>
+</div>
+{% endblock %}
