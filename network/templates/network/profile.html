@@ -1,10 +1,12 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <p class="button float-right nav-link">Followers </p>
-    <p class="button float-right nav-link">Following </p>
+    <p class="button float-left nav-link">Followers </p>
+    <p class="button float-left nav-link">Following </p>
     {% if logged_in_user != user.username %}
-        <a href="{% url 'follow' user.username %}" class="button float-left nav-link">Follow</a>
+        <a href="{% url 'follow' user.username %}" class="button float-right nav-link">Follow</a>
+    {% else %}
+        <a href="{% url 'new_post' %}" class="button float-right nav-link">New Post </a>
     {% endif %}
     <br>
     <h2>{{ user.username }} Posts</h2>

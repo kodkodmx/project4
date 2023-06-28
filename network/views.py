@@ -8,13 +8,20 @@ from .models import User, Post
 
 
 def index(request):
-    user = User.objects.get(username=request.user.username)
-    posts = Post.objects.all().order_by("-timestamp")
-    return render(request, "network/index.html", {
-        "posts": posts,
-        "user": user,
-        "logged_in_user": request.user.username
-    })
+    if not request.user.is_authenticated:
+        posts = Post.objects.all().order_by("-timestamp")
+        return render(request, "network/index.html", {
+            "posts": posts,
+        })
+
+    else:
+        user = User.objects.get(username=request.user.username)
+        posts = Post.objects.all().order_by("-timestamp")
+        return render(request, "network/index.html", {
+            "posts": posts,
+            "user": user,
+            "logged_in_user": request.user.username
+        })
 
 
 def login_view(request):
@@ -71,12 +78,20 @@ def register(request):
 def new_post(request):
     if request.method == "POST":
         content = request.POST["post"]
-        user = request.user
+        user = User.objects.get(username=request.user.username)
+        posts = Post.objects.all().order_by("-timestamp")
         post = Post(user=user, content=content)
         post.save()
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("index"),{
+                "posts": posts,
+                "user": user,
+                "logged_in_user": request.user.username
+        })        
     else:
-        return render(request, "network/new_post.html")
+        return render(request, "network/new_post.html", {
+            "logged_in_user": request.user.username
+        })
+
     
 def profile(request, username):
             user = User.objects.get(username=username)
