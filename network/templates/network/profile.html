@@ -1,22 +1,25 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-<p class="button float-right nav-link">Following </p>
-<p class="button float-right nav-link">Followers </p>
-<br>
-<h2>My Posts</h2>
-{% for post in posts %}
-    <div class="post">
-        <div class="post-header">
-            <p>{{ post.user.username }}</p>
-            <span class="float-right">{{ post.timestamp }}</span>
+    <p class="button float-right nav-link">Followers </p>
+    <p class="button float-right nav-link">Following </p>
+    {% if logged_in_user != user.username %}
+        <a href="{% url 'follow' user.username %}" class="button float-left nav-link">Follow</a>
+    {% endif %}
+    <br>
+    <h2>{{ user.username }} Posts</h2>
+    {% for post in posts %}
+        <div class="post">
+            <div class="post-header">
+                <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a>
+                <span class="float-right">{{ post.timestamp }}</span>
+            </div>
+            <div class="post-body">
+                <p>{{ post.content }}</p>
+            </div>
+            <div class="post-footer">
+                <span>{{ post.likes.count }} Likes</span>
+            </div>
         </div>
-        <div class="post-body">
-            <p>{{ post.content }}</p>
-        </div>
-        <div class="post-footer">
-            <span>{{ post.likes.count }} Likes</span>
-        </div>
-    </div>
-{% endfor %}
+    {% endfor %}
 {% endblock %}

@@ -8,9 +8,12 @@ from .models import User, Post
 
 
 def index(request):
-    posts = Post.objects.all().order_by("-timestamp").values()
+    user = User.objects.get(username=request.user.username)
+    posts = Post.objects.all().order_by("-timestamp")
     return render(request, "network/index.html", {
-        "posts": posts
+        "posts": posts,
+        "user": user,
+        "logged_in_user": request.user.username
     })
 
 
@@ -76,27 +79,19 @@ def new_post(request):
         return render(request, "network/new_post.html")
     
 def profile(request, username):
-    user = User.objects.get(username=username)
-    posts = user.posts.all().order_by("-timestamp").values()
-    return render(request, "network/profile.html", {
-        "posts": posts,
-        "user": user
-    })
+            user = User.objects.get(username=username)
+            posts = user.posts.all().order_by("-timestamp")
+            return render(request, "network/profile.html", {
+                "posts": posts,
+                "user": user,
+                "logged_in_user": request.user.username
+            })
 
-def following(request):
-    user = request.user
-    posts = []
-    for post in Post.objects.all().order_by("-timestamp").values():
-        if post["user_id"] in user.following.all().values_list("id", flat=True):
-            posts.append(post)
-    return render(request, "network/following.html", {
-        "posts": posts
-    })
-
-def followers(request, username):
+def follow(request, username):
     user = User.objects.get(username=username)
-    followers = user.followers.all()
-    return render(request, "network/followers.html", {
-        "followers": followers
-    })
+    if request.user in user.followers.all():
+        user.followers.remove(request.user)
+    else:
+        user.followers.add(request.user)
+    return HttpResponseRedirect(reverse("profile", args=(username,)))
 
