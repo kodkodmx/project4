@@ -96,10 +96,13 @@ def new_post(request):
 def profile(request, username):
             user = User.objects.get(username=username)
             posts = user.posts.all().order_by("-timestamp")
+            followers = user.followers.all().values_list('username', flat=True)
+            list_of_followers = list(followers)
             return render(request, "network/profile.html", {
                 "posts": posts,
                 "user": user,
-                "logged_in_user": request.user.username
+                "logged_in_user": request.user.username,
+                "followers": list_of_followers
             })
 
 def follow(request, username):
@@ -108,5 +111,18 @@ def follow(request, username):
         user.followers.remove(request.user)
     else:
         user.followers.add(request.user)
+
+    if user in request.user.following.all():
+        request.user.following.remove(user)
+    else:
+        request.user.following.add(user)
     return HttpResponseRedirect(reverse("profile", args=(username,)))
 
+def following(request):
+    user = User.objects.get(username=request.user.username)
+    posts = Post.objects.filter(user__in=user.following.all()).order_by("-timestamp")
+    return render(request, "network/following.html", {
+        "posts": posts,
+        "user": user,
+        "logged_in_user": request.user.username
+    })
