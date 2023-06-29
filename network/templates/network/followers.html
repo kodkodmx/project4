@@ -1,0 +1,12 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h2>My Followers</h2>
+    {% for follower in followers %}
+        <div class="post">
+            <div class="post-header">
+                <a href="{% url 'profile' follower %}">{{ follower }}</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

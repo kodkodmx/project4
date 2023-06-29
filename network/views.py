@@ -126,3 +126,22 @@ def following(request):
         "user": user,
         "logged_in_user": request.user.username
     })
+
+def followers(request, username):
+    user = User.objects.get(username=username)
+    followers = user.followers.all().values_list('username', flat=True)
+    return render(request, "network/followers.html", {
+        "followers": followers,
+        "user": user,
+        "logged_in_user": request.user.username
+    })
+
+def followings(request, username):
+    user = User.objects.get(username=username)
+    followings = user.following.all().values_list('username', flat=True)
+    return render(request, "network/followings.html", {
+        "followings": followings,
+        "user": user,
+        "logged_in_user": request.user.username
+    })
+

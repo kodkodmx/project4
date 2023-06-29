@@ -1,8 +1,8 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <p class="button float-left nav-link"> {{ user.followers.count }} Followers </p>
-    <p class="button float-left nav-link"> {{ user.following.count }} Following </p>
+    <a href="{% url 'followers' user.username %}" class="button float-left nav-link"> {{ user.followers.count }} Followers </a>
+    <a href="{% url 'followings' user.username %}" class="button float-left nav-link"> {{ user.following.count }} Followings </a>
     {% if logged_in_user != user.username %}
         {% if logged_in_user in followers %}
             <a href="{% url 'follow' user.username %}" class="button float-right nav-link">Unfollow</a>
