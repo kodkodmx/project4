@@ -1,28 +1,19 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    {% if user.is_authenticated %}
-        {% if author == logged_in_user %}
-            <form action="{% url 'edit' post.id %}" method="POST">
-            <button type="submit" class="button float-right nav-link">Save</button>
-            <br>
-            <h2>Edit Current Post</h2>
-            {% csrf_token %}
-            <div class="form-group">
-                <textarea class="form-control" name="content" id="content" rows="3">{{ post.content }}</textarea>
-            </div>
-            </form>
-        {% endif %}
+    {% if author == logged_in_user %}
+        <form action="{% url 'edit' post.id %}" method="POST">
+        <button type="submit" class="button float-right nav-link">Save</button>
+        <br>
+        <h2>Edit Current Post</h2>
+        {% csrf_token %}
+        <div class="form-group">
+            <textarea class="form-control" name="content" id="content" rows="3">{{ post.content }}</textarea>
+        </div>
+        </form>
+    {% else %}
+        <a href="{% url 'index' %}" class="button float-right nav-link">Home</a>
+        <br>
+        <h2>You can't edit this post.</h2>
     {% endif %}
-
-
-
-
-
-
-
-
-
-
-
 {% endblock %}

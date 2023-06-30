@@ -6,7 +6,11 @@
     {% endif %}
     <br>
     <h2>Current Post</h2>
+    {% if author == logged_in_user %}
         <div class="post" onclick="location.href = '{% url 'edit' post.id%}';">
+    {% else %}
+        <div class="post">
+    {% endif %}
             <div class="post-header">
                 <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a>
                 <span class="float-right">{{ post.timestamp }}</span>
