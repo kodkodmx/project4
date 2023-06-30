@@ -36,5 +36,8 @@ h2 {
 }
 .post-footer {
     text-align: right;
-
-    
+}
+.post:hover {
+    background-color: #28a745;
+    color: white;
+}

@@ -3,22 +3,32 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.generic import ListView
+from django.core.paginator import Paginator
+from django.shortcuts import render
 
 from .models import User, Post
+
 
 
 def index(request):
     if not request.user.is_authenticated:
         posts = Post.objects.all().order_by("-timestamp")
+        paginator = Paginator(posts, 10) # Show 10 contacts per page.
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
         return render(request, "network/index.html", {
-            "posts": posts,
+            "posts": page_obj,
         })
 
     else:
         user = User.objects.get(username=request.user.username)
         posts = Post.objects.all().order_by("-timestamp")
+        paginator = Paginator(posts, 10) # Show 10 contacts per page.
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
         return render(request, "network/index.html", {
-            "posts": posts,
+            "posts": page_obj,
             "user": user,
             "logged_in_user": request.user.username
         })
@@ -82,11 +92,7 @@ def new_post(request):
         posts = Post.objects.all().order_by("-timestamp")
         post = Post(user=user, content=content)
         post.save()
-        return HttpResponseRedirect(reverse("index"),{
-                "posts": posts,
-                "user": user,
-                "logged_in_user": request.user.username
-        })        
+        return HttpResponseRedirect(reverse("index"))        
     else:
         return render(request, "network/new_post.html", {
             "logged_in_user": request.user.username
@@ -96,10 +102,13 @@ def new_post(request):
 def profile(request, username):
             user = User.objects.get(username=username)
             posts = user.posts.all().order_by("-timestamp")
+            paginator = Paginator(posts, 10) # Show 10 contacts per page.
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
             followers = user.followers.all().values_list('username', flat=True)
             list_of_followers = list(followers)
             return render(request, "network/profile.html", {
-                "posts": posts,
+                "posts": page_obj,
                 "user": user,
                 "logged_in_user": request.user.username,
                 "followers": list_of_followers
@@ -121,8 +130,11 @@ def follow(request, username):
 def following(request):
     user = User.objects.get(username=request.user.username)
     posts = Post.objects.filter(user__in=user.following.all()).order_by("-timestamp")
+    paginator = Paginator(posts, 10) # Show 10 contacts per page.
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, "network/following.html", {
-        "posts": posts,
+        "posts": page_obj,
         "user": user,
         "logged_in_user": request.user.username
     })
@@ -145,3 +157,25 @@ def followings(request, username):
         "logged_in_user": request.user.username
     })
 
+def post(request, post_id):
+    post = Post.objects.get(id=post_id)
+    return render(request, "network/post.html", {
+        "post": post,
+        "author": post.user.username,
+        "logged_in_user": request.user.username
+    })
+
+def edit(request, post_id):
+    post = Post.objects.get(id=post_id)
+    if request.method == "POST":
+        content = request.POST["content"]
+        post.content = content
+        post.save()
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "network/edit.html", {
+            "post": post,
+            "logged_in_user": request.user.username,
+            "author": post.user.username,
+            "content": post.content
+        })

@@ -1,0 +1,21 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    {% if author == logged_in_user %}
+        <a href="{% url 'edit' post.id %}" class="button float-right nav-link">Edit </a>
+    {% endif %}
+    <br>
+    <h2>Current Post</h2>
+        <div class="post" onclick="location.href = '{% url 'edit' post.id%}';">
+            <div class="post-header">
+                <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a>
+                <span class="float-right">{{ post.timestamp }}</span>
+            </div>
+            <div class="post-body">
+                <p>{{ post.content }}</p>
+            </div>
+            <div class="post-footer">
+                <span>{{ post.likes.count }} Likes</span>
+            </div>
+        </div>
+{% endblock %}
