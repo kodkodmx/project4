@@ -2,11 +2,11 @@
 
 {% block body %}
     <br>
-    <h2>My Followings</h2>
+    <h2>Followings</h2>
     {% for following in followings %}
         <div class="post">
             <div class="post-header">
-                <a href="{% url 'profile' following %}">{{ following }}</a>
+                <a href="{% url 'profile' following %}">@{{ following }}</a>
             </div>
         </div>
     {% endfor %}

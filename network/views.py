@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.views.generic import ListView
 from django.core.paginator import Paginator
 from django.shortcuts import render
+import json
+from django.http import JsonResponse
 
 from .models import User, Post
 
@@ -128,15 +129,18 @@ def follow(request, username):
     return HttpResponseRedirect(reverse("profile", args=(username,)))
 
 def following(request):
-    user = User.objects.get(username=request.user.username)
-    posts = Post.objects.filter(user__in=user.following.all()).order_by("-timestamp")
-    paginator = Paginator(posts, 10) # Show 10 contacts per page.
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, "network/following.html", {
-        "posts": page_obj,
-        "user": user,
-        "logged_in_user": request.user.username
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    else:
+        user = User.objects.get(username=request.user.username)
+        posts = Post.objects.filter(user__in=user.following.all()).order_by("-timestamp")
+        paginator = Paginator(posts, 10) # Show 10 contacts per page.
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, "network/following.html", {
+            "posts": page_obj,
+            "user": user,
+            "logged_in_user": request.user.username
     })
 
 def followers(request, username):
@@ -166,16 +170,17 @@ def post(request, post_id):
     })
 
 def edit(request, post_id):
-    post = Post.objects.get(id=post_id)
+    post = Post.objects.get(pk=post_id)
     if request.method == "POST":
-        content = request.POST["content"]
-        post.content = content
+        data=json.loads(request.body)
+        post.content = data["content"]
         post.save()
-        return HttpResponseRedirect(reverse("index"))
-    else:
+        return JsonResponse({"message": "Post edited successfully.", "data": post.content }, status=201)
+         
+    else:    
         return render(request, "network/edit.html", {
             "post": post,
             "logged_in_user": request.user.username,
             "author": post.user.username,
             "content": post.content
-        })
+    })

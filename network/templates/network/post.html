@@ -1,25 +1,42 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    {% if author == logged_in_user %}
-        <a href="{% url 'edit' post.id %}" class="button float-right nav-link">Edit </a>
-    {% endif %}
-    <br>
-    <h2>Current Post</h2>
-    {% if author == logged_in_user %}
-        <div class="post" onclick="location.href = '{% url 'edit' post.id%}';">
-    {% else %}
-        <div class="post">
-    {% endif %}
-            <div class="post-header">
-                <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a>
-                <span class="float-right">{{ post.timestamp }}</span>
+    <div id="current">
+        {% if author == logged_in_user %}
+            <button type="submit" class="button float-right nav-link" onclick="edit()">Edit</button>
+        {% endif %}
+        <br>
+        <h2>Current Post</h2>
+        {% if author == logged_in_user %}
+            <div class="post" onclick="edit()">
+        {% else %}
+            <div class="post">
+        {% endif %}
+                <div class="post-header">
+                    <a href="{% url 'profile' post.user.username %}">@{{ post.user.username }}</a>
+                    <span class="float-right">{{ post.timestamp }}</span>
+                </div>
+                <div class="post-body">
+                    <p id="new_content">{{ post.content }}</p>
+                </div>
+                <div class="post-footer">
+                    <span>{{ post.likes.count }} Likes</span>
+                </div>
             </div>
-            <div class="post-body">
-                <p>{{ post.content }}</p>
+    </div>
+    <div id="edit" style="display: none;">
+        {% if author == logged_in_user %}
+            <button type="submit" class="button float-right nav-link" onclick="save({{ post.id }})">Save</button>
+            <br>
+            <h2>Edit Current Post</h2>
+        {% csrf_token %}
+            <div class="form-group">
+                <textarea class="form-control" name="content" id="content" rows="18">{{ post.content }}</textarea>
             </div>
-            <div class="post-footer">
-                <span>{{ post.likes.count }} Likes</span>
-            </div>
-        </div>
+        {% else %}
+            <a href="{% url 'index' %}" class="button float-right nav-link">Home</a>
+            <br>
+            <h2>You can't edit this post.</h2>
+        {% endif %}
+    </div>
 {% endblock %}
