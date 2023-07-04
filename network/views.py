@@ -166,7 +166,8 @@ def post(request, post_id):
     return render(request, "network/post.html", {
         "post": post,
         "author": post.user.username,
-        "logged_in_user": request.user.username
+        "logged_in_user": request.user.username,
+        "likes": post.likes.all().values_list('username', flat=True)
     })
 
 def edit(request, post_id):
@@ -184,3 +185,12 @@ def edit(request, post_id):
             "author": post.user.username,
             "content": post.content
     })
+
+def like(request, post_id):
+    post = Post.objects.get(pk=post_id)
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+    else:
+        post.likes.add(request.user)
+    return JsonResponse({"message": "Post liked successfully.", "data": post.likes.count() }, status=201)
+

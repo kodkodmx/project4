@@ -4,6 +4,8 @@
     <div id="current">
         {% if author == logged_in_user %}
             <button type="submit" class="button float-right nav-link" onclick="edit()">Edit</button>
+        {% else %}
+            <a href="{% url 'index' %}" class="button float-right nav-link">All posts</a>
         {% endif %}
         <br>
         <h2>Current Post</h2>
@@ -19,9 +21,6 @@
                 <div class="post-body">
                     <p id="new_content">{{ post.content }}</p>
                 </div>
-                <div class="post-footer">
-                    <span>{{ post.likes.count }} Likes</span>
-                </div>
             </div>
     </div>
     <div id="edit" style="display: none;">
@@ -34,9 +33,26 @@
                 <textarea class="form-control" name="content" id="content" rows="18">{{ post.content }}</textarea>
             </div>
         {% else %}
-            <a href="{% url 'index' %}" class="button float-right nav-link">Home</a>
+            <a href="{% url 'index' %}" class="button float-right nav-link">All posts</a>
             <br>
             <h2>You can't edit this post.</h2>
+        {% endif %}
+    </div>
+    <div class="post-footer">
+        {% if logged_in_user in likes %}
+            <button type="button" class="btn btn-link" onclick="like( {{ post.id }} )" ><span id="color" class="bi bi-heart-fill liked"></span></button>
+        {% else %}
+            {% if post.likes.count > 0 %}
+                <button type="button" class="btn btn-link" onclick="like( {{ post.id }} )" ><span id="color" class="bi bi-heart-fill heart"></span></button>
+            {% else %}
+                <button type="button" class="btn btn-link" onclick="like( {{ post.id }} )" ><span id="color" class="bi bi-heart heart"></span></button>
+            {% endif %}
+        {% endif %}                         
+        <span id="like">{{ post.likes.count }}</span>
+        {% if post.likes.count == 1 %}
+            <span id="likes">Like</span>
+        {% else %}
+            <span id="likes">Likes</span>
         {% endif %}
     </div>
 {% endblock %}
