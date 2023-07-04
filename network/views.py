@@ -11,7 +11,6 @@ from django.http import JsonResponse
 from .models import User, Post
 
 
-
 def index(request):
     if not request.user.is_authenticated:
         posts = Post.objects.all().order_by("-timestamp")
